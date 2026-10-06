@@ -1,0 +1,16 @@
+{
+  "name": "orca-git-blame",
+  "version": "1.0.0",
+  "description": "Exibe informações do Git Blame no editor ao interagir com arquivos",
+  "main": "dist/index.js",
+  "engines": {
+    "orca": "^1.0.0"
+  },
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node24 --outfile=dist/index.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
+  }
+}

@@ -37,41 +37,57 @@ var import_child_process = require("child_process");
 var import_util = __toESM(require("util"));
 var execAsync = import_util.default.promisify(import_child_process.exec);
 var fileSelectionUnsubscribe;
+var lastDecorationId = null;
 function load() {
-  console.log("Plugin Orca Git Blame carregado!");
-  fileSelectionUnsubscribe = orca.editor.onDidLineChange(async (event) => {
+  console.log("Plugin Orca Git Blame ativado com sucesso!");
+  fileSelectionUnsubscribe = orca.editor.onDidChangeCursorPosition(async (event) => {
     const { filePath, lineNumber, currentWorktreePath } = event;
-    if (!filePath || !currentWorktreePath) return;
+    if (lastDecorationId) {
+      await orca.editor.removeLineDecoration(lastDecorationId);
+      lastDecorationId = null;
+    }
+    if (!filePath || !currentWorktreePath || !lineNumber) return;
     try {
-      const command = `git blame -L ${lineNumber},${lineNumber} --porcelain ${filePath}`;
+      const command = `git blame -L ${lineNumber},${lineNumber} --porcelain "${filePath}"`;
       const { stdout } = await execAsync(command, { cwd: currentWorktreePath });
       if (stdout) {
         const blameInfo = parseGitBlamePorcelain(stdout);
-        orca.editor.setLineDecoration(lineNumber, {
-          text: ` \u2022 ${blameInfo.author} (${blameInfo.summary})`,
-          className: "orca-git-blame-inline-text",
-          style: { color: "rgba(128, 128, 128, 0.6)", fontStyle: "italic" }
+        const ghostText = `  ${blameInfo.author}, ${blameInfo.date} \u2022 ${blameInfo.summary}`;
+        lastDecorationId = await orca.editor.setLineDecoration(lineNumber, {
+          text: ghostText,
+          // Garante que o texto fique grudado no final da linha de código (estilo Ghost Text)
+          renderType: "inlineAfter",
+          style: {
+            color: "#80808090",
+            // Cinza com transparência
+            fontStyle: "italic",
+            fontSize: "12px",
+            marginLeft: "20px"
+          }
         });
       }
     } catch (error) {
-      orca.editor.clearLineDecoration(lineNumber);
+      console.debug("Erro ao buscar Git Blame:", error);
     }
   });
 }
 function unload() {
   if (fileSelectionUnsubscribe) fileSelectionUnsubscribe();
-  orca.editor.clearAllDecorations();
-  console.log("Plugin Orca Git Blame descarregado.");
+  if (lastDecorationId) orca.editor.removeLineDecoration(lastDecorationId);
+  console.log("Plugin Orca Git Blame desativado.");
 }
 function parseGitBlamePorcelain(stdout) {
   const lines = stdout.split("\n");
   let author = "Unknown";
   let summary = "";
+  let timeStamp = 0;
   for (const line of lines) {
-    if (line.startsWith("author ")) author = line.replace("author ", "");
-    if (line.startsWith("summary ")) summary = line.replace("summary ", "");
+    if (line.startsWith("author ")) author = line.replace("author ", "").trim();
+    if (line.startsWith("summary ")) summary = line.replace("summary ", "").trim();
+    if (line.startsWith("author-time ")) timeStamp = parseInt(line.replace("author-time ", "").trim(), 10);
   }
-  return { author, summary };
+  const date = timeStamp ? new Date(timeStamp * 1e3).toLocaleDateString() : "";
+  return { author, summary, date };
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

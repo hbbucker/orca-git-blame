@@ -1,13 +1,13 @@
 {
   "manifestVersion": 1,
-  "id": "orca-git-blame",
-  "publisher": "hugo-bucker",
-  "name": "Git Blame",
-  "displayName": "Git Blame Inline",
+  "id": "local-git-blame-tool",
+  "publisher": "dev-local",
+  "name": "Git Blame Local",
+  "displayName": "Git Blame Inline Local",
   "version": "1.0.0",
-  "description": "Exibe informações do Git Blame inline no editor",
+  "description": "Exibe informacoes do Git Blame inline no editor",
   "author": {
-    "name": "Hugo Bucker"
+    "name": "Developer"
   },
   "engines": {
     "orca": ">=1.0.0"
