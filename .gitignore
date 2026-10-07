@@ -1,0 +1,12 @@
+node_modules/
+
+# Backups do editor
+*~
+
+# Estado local do harness tlc
+.tlc/
+
+# Logs e lixo de SO
+npm-debug.log*
+*.log
+.DS_Store

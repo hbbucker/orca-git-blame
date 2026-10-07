@@ -1,16 +1,15 @@
 {
   "name": "orca-git-blame",
   "version": "1.0.0",
-  "description": "Exibe informações do Git Blame no editor ao interagir com arquivos",
-  "main": "dist/index.js",
-  "engines": {
-    "orca": "^1.0.0"
-  },
+  "description": "Git blame inline na linha do cursor do Orca IDE, via patch do app.asar",
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --platform=node --target=node24 --outfile=dist/index.js"
+    "patch": "node scripts/install.mjs",
+    "patch:check": "node scripts/install.mjs --check",
+    "unpatch": "node scripts/uninstall.mjs",
+    "test": "node --test test/*.test.mjs"
   },
   "devDependencies": {
-    "esbuild": "^0.28.2",
-    "typescript": "^7.0.2"
-  }
+    "@electron/asar": "^4.3.1"
+  },
+  "type": "module"
 }
